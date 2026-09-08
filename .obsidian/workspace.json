@@ -11,10 +11,14 @@
             "id": "204e0903b1db0b0c",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "_posts/2026-09-08-UML.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "2026-09-08-UML"
             }
           }
         ]
