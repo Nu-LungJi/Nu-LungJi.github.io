@@ -26,24 +26,20 @@ echo 현재 브랜치:
 echo %CURRENT%
 echo.
 
-:: 변경사항 확인
-git status --porcelain > status.tmp
+:: 블로그 작업 변경사항 확인
+for /f "delims=" %%A in ('git status --porcelain -- . ":!BLOG_START.bat" ":!BLOG_PUBLISH.bat" ":!.obsidian"') do (
 
-for %%A in (status.tmp) do (
-    if %%~zA NEQ 0 (
-        echo.
-        echo [ERROR] 현재 Commit되지 않은 변경사항이 있습니다.
-        echo.
-        git status --short
-        echo.
-        echo 먼저 Commit하거나 변경사항을 정리해주세요.
-        del status.tmp
-        pause
-        exit /b 1
-    )
+    echo.
+    echo [ERROR] 블로그 작업 중 Commit되지 않은 변경사항이 있습니다.
+    echo.
+    git status --short
+    echo.
+    echo 먼저 작업을 정리해주세요.
+    pause
+    exit /b 1
+
 )
 
-del status.tmp
 :: master 이동
 echo [1/4] master 브랜치로 이동합니다...
 

@@ -2,5 +2,6 @@ _site
 .sass-cache
 .jekyll-metadata
 Gemfile.lock
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
+.obsidian/
+
+status.tmp
