@@ -1,0 +1,78 @@
+backend:
+  name: github
+  repo: Nu-LungJi/Nu-LungJi.github.io
+  branch: main
+
+site_url: "https://nu-lungji.github.io"
+display_url: "https://nu-lungji.github.io"
+
+publish_mode: simple
+
+media_folder: "assets/images/posts"
+public_folder: "/assets/images/posts"
+
+collections:
+  - name: "posts"
+    label: "Posts"
+    folder: "_posts"
+    create: true
+    extension: "md"
+    format: "frontmatter"
+
+    slug: "{{year}}-{{month}}-{{day}}-{{fields.slug}}"
+
+    editor:
+      preview: false
+
+    fields:
+      - label: "Layout"
+        name: "layout"
+        widget: "hidden"
+        default: "single"
+
+      - label: "Title"
+        name: "title"
+        widget: "string"
+
+      - label: "File Name"
+        name: "slug"
+        widget: "string"
+
+      - label: "Publish Date"
+        name: "date"
+        widget: "datetime"
+
+      - label: "Category"
+        name: "categories"
+        widget: "select"
+        multiple: true
+        min: 1
+        max: 1
+        options:
+          - { label: "C++", value: "C++" }
+          - { label: "Standard Template Library", value: "STL" }
+          - { label: "Thread Programming", value: "Thread" }
+          - { label: "Optimization", value: "Optimization" }
+          - { label: "Volumetric Shader", value: "VolumetricShader" }
+          - { label: "Unreal C++", value: "UnrealCpp" }
+          - { label: "Design Pattern", value: "DesignPattern" }
+          - { label: "UML", value: "UML" }
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+
+      - label: "Table of Contents"
+        name: "toc"
+        widget: "boolean"
+        default: true
+
+      - label: "Sticky TOC"
+        name: "toc_sticky"
+        widget: "boolean"
+        default: true
+
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
