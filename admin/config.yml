@@ -2,6 +2,7 @@ backend:
   name: github
   repo: Nu-LungJi/Nu-LungJi.github.io
   branch: main
+  site_domain: nu-lungji.netlify.app
 
 site_url: "https://nu-lungji.github.io"
 display_url: "https://nu-lungji.github.io"
