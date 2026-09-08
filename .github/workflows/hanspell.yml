@@ -30,22 +30,27 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          # 문서 내용이 GitHub Actions 명령으로 해석되지 않도록 처리
           marker=$(cat /proc/sys/kernel/random/uuid)
           echo "::stop-commands::$marker"
 
           failed=0
+          count=0
+
+          # 변경 파일 조회가 실패하면 검사를 중단
+          git diff --name-only -z --diff-filter=AMR \
+            "$BASE_SHA...$HEAD_SHA" -- '*.md' '*.markdown' \
+            > "$RUNNER_TEMP/hanspell-files"
 
           while IFS= read -r -d '' file; do
+            count=$((count + 1))
             printf '\n📝 검사 파일: %s\n' "$file"
+
             if ! timeout 90s hanspell-cli < "$file"; then
               printf '⚠️ 검사 실행 실패 또는 시간 초과\n'
               failed=1
             fi
-          done < <(
-            git diff --name-only -z --diff-filter=AMR \
-              "$BASE_SHA...$HEAD_SHA" -- '*.md' '*.markdown'
-          )
+          done < "$RUNNER_TEMP/hanspell-files"
 
+          printf '\n검사 대상: %s개 파일\n' "$count"
           echo "::$marker::"
           exit "$failed"
