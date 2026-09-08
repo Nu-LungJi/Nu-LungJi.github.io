@@ -30,7 +30,7 @@ plugins:
 
 # Author
 author:
-  name   : "Nu-LungJi"
+  name   : "LungJi"
   avatar : "/assets/images/bio-photo.jpg"
   # bio    : "Unreal Game Programmer"
   # location : "Seoul, Korea"
@@ -45,7 +45,7 @@ footer:
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
+      url: "https://github.com/Nu-LungJi"
 
 # Post defaults
 defaults:
