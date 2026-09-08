@@ -1,13 +1,13 @@
 # Blog Information
-title: LungJi-GameTech-Blog
+title: LungJi Lab
 email: shinhwa30724@gmail.com
 description: "똥글 싸지릅니다."
-github_username: Nu-LungJi
+github_username: LungJi
 search: true
 
 # Blog Theme
 remote_theme: mmistakes/minimal-mistakes@4.28.0
-minimal_mistakes_skin: "air" # "default"
+minimal_mistakes_skin: "default" # "air"
 
 # MarkDown
 markdown: kramdown
@@ -32,8 +32,8 @@ plugins:
 author:
   name   : "Nu-LungJi"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "Unreal Game Programmer"
-  location : "Seoul, Korea"
+  # bio    : "Unreal Game Programmer"
+  # location : "Seoul, Korea"
   
   links:
     - label: "GitHub"
