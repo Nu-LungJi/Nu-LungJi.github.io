@@ -1,0 +1,51 @@
+name: 한국어 맞춤법 검사
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  spellcheck:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: hanspell 설치
+        run: npm install --global hanspell --ignore-scripts
+
+      - name: 변경된 Markdown 검사
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # 문서 내용이 GitHub Actions 명령으로 해석되지 않도록 처리
+          marker=$(cat /proc/sys/kernel/random/uuid)
+          echo "::stop-commands::$marker"
+
+          failed=0
+
+          while IFS= read -r -d '' file; do
+            printf '\n📝 검사 파일: %s\n' "$file"
+            if ! timeout 90s hanspell-cli < "$file"; then
+              printf '⚠️ 검사 실행 실패 또는 시간 초과\n'
+              failed=1
+            fi
+          done < <(
+            git diff --name-only -z --diff-filter=AMR \
+              "$BASE_SHA...$HEAD_SHA" -- '*.md' '*.markdown'
+          )
+
+          echo "::$marker::"
+          exit "$failed"
