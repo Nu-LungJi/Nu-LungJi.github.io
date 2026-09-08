@@ -1,0 +1,109 @@
+name: Markdown PR Summary
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: markdown-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  summarize:
+    # 같은 저장소의 브랜치에서 만든 PR만 처리
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const marker = '<!-- markdown-pr-summary -->';
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number: pr.number, per_page: 100 }
+            );
+
+            const isMarkdown = name => /\.(md|markdown)$/i.test(name || '');
+            const docs = files.filter(file =>
+              isMarkdown(file.filename) ||
+              isMarkdown(file.previous_filename)
+            );
+
+            const labels = {
+              added: '추가',
+              modified: '수정',
+              removed: '삭제',
+              renamed: '이름 변경'
+            };
+
+            const escape = text => String(text)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/[\r\n]/g, ' ');
+
+            const added = docs.reduce((n, f) => n + f.additions, 0);
+            const removed = docs.reduce((n, f) => n + f.deletions, 0);
+
+            const rows = docs.slice(0, 100).map(file => {
+              const name = file.previous_filename
+                ? `${file.previous_filename} → ${file.filename}`
+                : file.filename;
+              return `- **${labels[file.status] || file.status}** · ` +
+                `<code>${escape(name)}</code> · ` +
+                `+${file.additions} / −${file.deletions}`;
+            });
+
+            const body = [
+              marker,
+              '## 📝 Markdown 변경 요약',
+              '',
+              `기준 커밋: ${pr.head.sha.slice(0, 7)}`,
+              '',
+              docs.length
+                ? `총 **${docs.length}개 파일** · 추가 **${added}줄** / 삭제 **${removed}줄**`
+                : '이번 PR에는 Markdown 파일 변경이 없습니다.',
+              '',
+              ...rows,
+              docs.length > 100 ? '\n파일 목록은 처음 100개만 표시합니다.' : '',
+              files.length >= 3000 ? '\nGitHub API 한도로 일부 파일이 누락될 수 있습니다.' : '',
+              '',
+              '_새 커밋이 올라오면 이 댓글이 갱신됩니다._'
+            ].join('\n');
+
+            // 처리 중 새 커밋이 올라왔거나 PR이 닫혔으면 게시 생략
+            const { data: latest } = await github.rest.pulls.get({
+              owner, repo, pull_number: pr.number
+            });
+            if (latest.state !== 'open' || latest.draft ||
+                latest.head.sha !== pr.head.sha) return;
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number: pr.number, per_page: 100 }
+            );
+
+            const existing = comments.find(comment =>
+              comment.user?.login === 'github-actions[bot]' &&
+              comment.body?.startsWith(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number, body
+              });
+            }
