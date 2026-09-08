@@ -14,3 +14,32 @@ main:
 
   - title: "About"
     url: /about/
+
+sidebar-category:
+  - title: "PROGRAMMING"
+    children:
+      - title: "C++"
+        url: /categories/C++/
+      - title: "Standard Template Library"
+        url: /categories/STL/
+      - title: "Thread Programming"
+        url: /categories/Thread/
+      - title: "Optimization"
+        url: /categories/Optimization/
+
+  - title: "SHADER PROGRAMMING"
+    children:
+      - title: "Volumetric Shader"
+        url: /categories/Volumetric Shader/
+        
+  - title: "UNREAL ENGINE"
+    children:
+      - title: "Unreal C++"
+        url: /categories/Unreal C++/
+        
+  - title: "SOFTWARE ARCHITECTURE"
+    children:
+      - title: "Design Pattern"
+        url: /categories/Design Pattern/
+
+   - title: "GRAPHICS"
