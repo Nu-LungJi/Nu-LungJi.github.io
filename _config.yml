@@ -61,7 +61,9 @@ defaults:
       related: true
       toc: true
       toc_sticky: true
-      
+      sidebar:
+        nav: "sidebar-category"
+        
   - scope:
       path: "_pages"
       type: pages
