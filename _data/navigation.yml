@@ -15,6 +15,7 @@ main:
   - title: "About"
     url: /about/
 
+# Blog Sidebar Section : PROGRAMMING | SHADER PROGRAMMING | UNREAL ENGINE | SOFTWARE ARCHITECTURE | GRAPHICS
 sidebar-category:
   - title: "PROGRAMMING"
     children:
@@ -41,5 +42,7 @@ sidebar-category:
     children:
       - title: "Design Pattern"
         url: /categories/Design Pattern/
-
+      - title: "UML"
+        url: /categories/UML/
+        
    - title: "GRAPHICS"
