@@ -8,14 +8,7 @@ main:
     url: "/year-archive/"
 
   - title: "Categories"
-    url: "/categories/"
-
-  - title: "Tags"
-    url: "/tags/"
-
-  - title: "About"
-    url: "/about/"
-
+    url: "/Categories/"
 
 # Blog Sidebar Section
 
@@ -23,33 +16,33 @@ sidebar-category:
   - title: "PROGRAMMING"
     children:
       - title: "C++"
-        url: "/categories/cpp/"
+        url: "/Categories/CPP/"
 
       - title: "Standard Template Library"
-        url: "/categories/stl/"
+        url: "/Categories/STL/"
 
       - title: "Thread Programming"
-        url: "/categories/thread/"
+        url: "/Categories/Thread-Programming/"
 
       - title: "Optimization"
-        url: "/categories/optimization/"
+        url: "/Categories/Pptimization/"
 
   - title: "SHADER PROGRAMMING"
     children:
       - title: "Volumetric Shader"
-        url: "/categories/volumetric-shader/"
+        url: "/Categories/Volumetric-Shader/"
 
   - title: "UNREAL ENGINE"
     children:
       - title: "Unreal C++"
-        url: "/categories/unreal-cpp/"
+        url: "/categories/Unreal-CPP/"
 
   - title: "SOFTWARE ARCHITECTURE"
     children:
       - title: "Design Pattern"
-        url: "/categories/design-pattern/"
+        url: "/categories/Design-Pattern/"
 
       - title: "UML"
-        url: "/categories/uml/"
+        url: "/categories/UML/"
 
   - title: "GRAPHICS"
