@@ -27,12 +27,12 @@ for /f %%A in ('git status --porcelain') do (
     exit /b 1
 )
 
-echo [1/4] main 브랜치로 이동합니다...
-git switch main
+echo [1/4] master 브랜치로 이동합니다...
+git switch master
 
 if errorlevel 1 (
     echo.
-    echo [ERROR] main 브랜치로 이동하지 못했습니다.
+    echo [ERROR] master 브랜치로 이동하지 못했습니다.
     pause
     exit /b 1
 )

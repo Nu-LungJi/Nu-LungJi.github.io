@@ -25,10 +25,10 @@ if "%BRANCH%"=="" (
     exit /b 1
 )
 
-if /I "%BRANCH%"=="main" (
-    echo [ERROR] 현재 main 브랜치입니다.
+if /I "%BRANCH%"=="master" (
+    echo [ERROR] 현재 master 브랜치입니다.
     echo.
-    echo main에는 직접 Publish하지 않습니다.
+    echo master에는 직접 Publish하지 않습니다.
     echo BLOG_START.bat을 먼저 실행해주세요.
     pause
     exit /b 1
@@ -91,7 +91,7 @@ git push -u origin "%BRANCH%"
 if errorlevel 1 (
     echo.
     echo [ERROR] Push에 실패했습니다.
-    echo main에는 아무 변경도 적용되지 않았습니다.
+    echo master에는 아무 변경도 적용되지 않았습니다.
     pause
     exit /b 1
 )
@@ -99,7 +99,7 @@ if errorlevel 1 (
 echo.
 echo [4/4] GitHub Pull Request 화면을 엽니다...
 
-start "" "https://github.com/Nu-LungJi/Nu-LungJi.github.io/compare/main...%BRANCH%?expand=1"
+start "" "https://github.com/Nu-LungJi/Nu-LungJi.github.io/compare/master...%BRANCH%?expand=1"
 
 echo.
 echo ==========================================
@@ -112,7 +112,7 @@ echo.
 echo 브라우저에서 변경사항을 검토한 뒤
 echo Create Pull Request를 눌러주세요.
 echo.
-echo PR Merge 전까지 main에는 반영되지 않습니다.
+echo PR Merge 전까지 master에는 반영되지 않습니다.
 echo ==========================================
 echo.
 
