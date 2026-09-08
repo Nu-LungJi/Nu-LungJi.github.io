@@ -38,8 +38,8 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/4] GitHub의 최신 main을 가져옵니다...
-git pull --rebase origin main
+echo [2/4] GitHub의 최신 master를 가져옵니다...
+git pull --rebase origin master
 
 if errorlevel 1 (
     echo.
