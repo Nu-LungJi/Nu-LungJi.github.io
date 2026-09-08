@@ -10,7 +10,7 @@ main:
   - title: "Categories"
     url: "/Categories/"
 
-# Blog Sidebar Section
+# Blog Sidebar Section : PROGRAMMING | SHADER PROGRAMMING | UNREAL ENGINE | SOFTWARE ARCHITECTURE | GRAPHICS
 
 sidebar-category:
   - title: "PROGRAMMING"
