@@ -2,8 +2,9 @@ import sys
 from hanspell import spell_checker
 
 
-result_file = "/tmp/hanspell-result.txt"
-
+result = spell_checker.check(text)
+if result.errors:
+    print(result.checked)
 
 def check_file(path):
     with open(path, "r", encoding="utf-8") as f:
