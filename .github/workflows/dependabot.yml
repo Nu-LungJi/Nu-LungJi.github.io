@@ -1,0 +1,23 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # npm 의존성 자동 업데이트
+  - package-ecosystem: "npm"
+    directory: "/"        # package.json 위치
+    schedule:
+      interval: "weekly"  # daily, weekly, monthly 중 선택
+      day: "monday"       # weekly일 경우 요일 지정
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 10  # 동시에 열 수 있는 PR 수 제한
+    reviewers:
+      - "my-team"         # 자동으로 리뷰어 지정
+    labels:
+      - "dependencies"    # PR에 레이블 자동 추가
+    commit-message:
+      prefix: "chore"     # 커밋 메시지 prefix
+    ignore:
+      # 특정 패키지의 메이저 버전 업데이트 무시
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+출처: https://knightk.tistory.com/379 [KnightK:티스토리]
