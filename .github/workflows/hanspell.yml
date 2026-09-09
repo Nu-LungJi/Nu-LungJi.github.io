@@ -31,9 +31,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: py-hanspell 설치
+      - name: hanspell 설치
         run: |
-          pip install py-hanspell
+          pip install git+https://github.com/ssut/py-hanspell.git
 
       - name: 변경된 Markdown 검사
         id: spellcheck
