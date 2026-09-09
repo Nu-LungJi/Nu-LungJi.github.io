@@ -2,7 +2,7 @@ DirectX9에서 DirectX11로 넘어오면서 PBR이라는 개념을 접하게 되
 그러다가 이후에 포폴 만들면서 PBR을 구현해야 됐는데, 뭔지도 모르는 공식들이 너무 많고, 생소한 개념들이 많아 AI에 의존하게 되니까 현타가 와서, 포폴 끝나고서야 정리해본다.
 
 우선, PBR은 매우 방대한 영역의 렌더링 기술이고, 지금까지도 연구가 되고 있다. 
-![[PBR-White-Paper-Knowledge-Architecture-1.0.png|432]]
+![PBR_Research|422](../../../assets/images/posts/Shader-Programming/PBR-Research.png)
 
 ## PBR(Physically Based Rendering)
 개념 : PBR은 직역으로는 "물리 기반 렌더링"으로, 
