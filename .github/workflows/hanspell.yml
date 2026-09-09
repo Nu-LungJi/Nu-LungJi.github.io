@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: hanspell-${{ github.event.pull_request.number }}
@@ -30,7 +31,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          persist-credentials: false
+
+      - name: Node 설치
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Python 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: 변경된 Markdown 찾기
         id: files

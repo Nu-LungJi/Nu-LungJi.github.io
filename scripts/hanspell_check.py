@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """Check UTF-8 files with py-hanspell; exit 0=pass, 1=issues, 2=execution error.
 
@@ -174,3 +175,4 @@ def main(argv=None, checker=None):
 
 if __name__ == "__main__":
     sys.exit(main())
+
