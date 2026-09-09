@@ -26,9 +26,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: hanspell 설치
+      - name: Python 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: py-hanspell 설치
         run: |
-          npm install --global hanspell
+          pip install py-hanspell
 
       - name: 변경된 Markdown 파일 검사
         id: spellcheck
