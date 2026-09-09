@@ -8,13 +8,24 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: hanspell-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   spellcheck:
     name: Hanspell Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
+    outputs:
+      exit_code: ${{ steps.spellcheck.outputs.exit_code }}
     steps:
+      - name: 결과 파일 초기화
+        shell: bash
+        run: |
+          printf '검사가 완료되지 않았습니다. 설치 또는 실행 로그를 확인하세요.\n' \
+            > "$RUNNER_TEMP/hanspell-result.txt"
+
       - name: 저장소 가져오기
         uses: actions/checkout@v5
         with:
@@ -31,69 +42,147 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: hanspell 설치
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install git+https://github.com/ssut/py-hanspell.git
-
-      - name: 변경된 Markdown 검사
-        id: spellcheck
+      - name: 변경된 Markdown 찾기
+        id: files
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          git diff --name-only \
-            "$BASE_SHA" "$HEAD_SHA" \
-            --diff-filter=AMR \
-            -- '*.md' '*.markdown' \
-            > files.txt
+          git diff --name-only -z --diff-filter=AMR \
+            "$BASE_SHA...$HEAD_SHA" -- '*.md' '*.markdown' \
+            > "$RUNNER_TEMP/hanspell-files.nul"
+          if [ -s "$RUNNER_TEMP/hanspell-files.nul" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
-          if [ ! -s files.txt ]; then
-            echo "Markdown 변경 없음"
-            echo "failed=false" >> "$GITHUB_OUTPUT"
+      - name: Python 환경 설정
+        if: steps.files.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: py-hanspell 설치
+        if: steps.files.outputs.changed == 'true'
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install git+https://github.com/ssut/py-hanspell.git
+
+      - name: 변경된 Markdown 검사
+        id: spellcheck
+        continue-on-error: true
+        shell: bash
+        env:
+          CHANGED: ${{ steps.files.outputs.changed }}
+        run: |
+          if [ "$CHANGED" = "false" ]; then
+            printf '검사 대상 Markdown 파일이 없습니다.\n' > "$RUNNER_TEMP/hanspell-result.txt"
+            echo "exit_code=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          python scripts/hanspell_check.py $(cat files.txt)
+          # Disable workflow-command parsing while running the checker.
+          marker=$(cat /proc/sys/kernel/random/uuid)
+          echo "::stop-commands::$marker"
+          code=0
+          timeout 360s python scripts/hanspell_check.py \
+            --files-from "$RUNNER_TEMP/hanspell-files.nul" \
+            --output "$RUNNER_TEMP/hanspell-result.txt" || code=$?
+          echo "::$marker::"
 
+          if [ "$code" -ne 0 ] && [ "$code" -ne 1 ] && [ "$code" -ne 2 ]; then
+            printf '\n검사가 비정상 종료되었습니다. 종료 코드: %s (124: 시간 초과)\n' "$code" \
+              >> "$RUNNER_TEMP/hanspell-result.txt"
+          fi
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
 
-      - name: PR 댓글 작성
+      - name: 검사 결과 보관
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hanspell-result
+          path: ${{ runner.temp }}/hanspell-result.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: 최종 검사 상태 반영
+        if: always()
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.spellcheck.outputs.exit_code }}
+        run: |
+          case "$EXIT_CODE" in
+            0) echo "검사 완료" ;;
+            1) echo "::error::맞춤법 수정 또는 검토가 필요합니다."; exit 1 ;;
+            *) echo "::error::맞춤법 검사를 완료하지 못했습니다. 로그와 결과 파일을 확인하세요."; exit 1 ;;
+          esac
+
+  comment:
+    name: PR 검사 결과 댓글
+    needs: spellcheck
+    # Fork/Dependabot PRs still run the check; their read-only tokens cannot comment.
+    if: >-
+      always() && !cancelled() &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      # This job only reads the report; it does not execute PR code.
+      - name: 검사 결과 받기
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: hanspell-result
+          path: ${{ runner.temp }}/hanspell-report
+
+      - name: PR 댓글 작성 또는 갱신
         uses: actions/github-script@v7
         env:
-          RESULT_FILE: /tmp/hanspell-result.txt
-          STATUS: ${{ steps.spellcheck.outputs.failed }}
+          RESULT_FILE: ${{ runner.temp }}/hanspell-report/hanspell-result.txt
+          EXIT_CODE: ${{ needs.spellcheck.outputs.exit_code }}
+          JOB_RESULT: ${{ needs.spellcheck.result }}
         with:
           script: |
-            const fs = require("fs");
-
-            let result = "";
-
+            const fs = require('fs');
+            const marker = '<!-- hanspell-check-result -->';
+            const code = process.env.EXIT_CODE;
+            let title = '⚠️ 한국어 맞춤법 검사 실행 실패';
+            if (code === '0' && process.env.JOB_RESULT === 'success') {
+              title = '✅ 한국어 맞춤법 검사 완료';
+            } else if (code === '1') {
+              title = '📝 한국어 맞춤법 수정 또는 검토 필요';
+            }
+            let report = '결과 파일이 없습니다. Actions 실행 로그를 확인하세요.';
             if (fs.existsSync(process.env.RESULT_FILE)) {
-              result = fs.readFileSync(process.env.RESULT_FILE, "utf8");
+              report = fs.readFileSync(process.env.RESULT_FILE, 'utf8');
             }
-
-            let body;
-
-            if (process.env.STATUS === "true") {
-              body =
-              `## ⚠️ 한국어 맞춤법 검사 실패\n\n` +
-              "수정이 필요한 맞춤법 오류가 발견되었습니다.\n\n" +
-              "```\n" +
-              result.slice(0, 6000) +
-              "\n```";
-            } else {
-              body =
-              `## ✅ 한국어 맞춤법 검사 통과\n\n` +
-              "변경된 Markdown 파일 검사가 완료되었습니다.\n\n" +
-              result.slice(0, 6000);
-            }
-
-
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body
+            const shortened = report.length > 6000;
+            report = report.slice(0, 6000);
+            const runs = report.match(/`+/g) || [];
+            const fence = '`'.repeat(Math.max(3, ...runs.map(s => s.length + 1)));
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = `${marker}\n## ${title}\n\n${fence}text\n${report}\n${fence}\n\n` +
+              (shortened ? '내용이 길어 일부만 표시합니다. 전체 내용은 실행 결과의 hanspell-result 파일에 있습니다.\n\n' : '') +
+              `[Actions 실행 로그 및 전체 결과](${url})`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo, issue_number: context.issue.number, per_page: 100
             });
+            const existing = comments.find(c =>
+              c.user?.login === 'github-actions[bot]' && c.body?.startsWith(marker)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo, comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: context.issue.number, body
+              });
+            }
