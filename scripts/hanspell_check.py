@@ -9,20 +9,24 @@ Markdown is checked as text, including front matter and code blocks.
 """
 
 import argparse
+import html
 import os
 import re
 import sys
 import time
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 
-MAX_CHARS = 500
+CHECKER_VERSION = "2026-09-10-passport-v2"
+# The current endpoint rejects 500-character Korean input (HTTP 413).
+MAX_CHARS = 300
 KOREAN = re.compile(r"[가-힣ㄱ-ㅎㅏ-ㅣ]")
 LABELS = {1: "맞춤법", 2: "띄어쓰기", 3: "표준어 의심", 4: "통계적 교정"}
 
 
 def chunks(text):
-    """Preserve all characters, preferring whitespace boundaries below 500 chars."""
+    """Preserve all characters, preferring whitespace boundaries below 300 chars."""
     start = 0
     while start < len(text):
         end = min(start + MAX_CHARS, len(text))
@@ -45,13 +49,60 @@ def load_checker():
             "py-hanspell 또는 의존성이 없습니다. workflow의 설치 단계를 확인하세요."
         ) from exc
 
-    # The upstream library does not set an HTTP timeout or check HTTP status.
+    # Keep the upstream parser, supplying the public page's current passportKey.
     class TimedSession(requests.Session):
+        def __init__(self):
+            super().__init__()
+            self.passport_key = None
+
+        def refresh_key(self):
+            response = super().request(
+                "GET", "https://search.naver.com/search.naver",
+                params={"query": "네이버 맞춤법 검사기"},
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=(5, 20),
+            )
+            response.raise_for_status()
+            page = html.unescape(response.text)
+            match = re.search(r'passportKey=([^&"\s<>]+)', page)
+            if match is None:
+                raise RuntimeError(
+                    "네이버 검색 페이지에서 passportKey를 찾지 못했습니다. "
+                    "페이지 변경 또는 접속 제한 여부를 확인하세요."
+                )
+            self.passport_key = unquote(match.group(1))
+
         def request(self, method, url, **kwargs):
             kwargs.setdefault("timeout", (5, 20))
-            response = super().request(method, url, **kwargs)
-            response.raise_for_status()
-            return response
+            target = urlsplit(url)
+            if (target.hostname != "m.search.naver.com" or
+                    target.path != "/p/csearch/ocontent/util/SpellerProxy"):
+                response = super().request(method, url, **kwargs)
+                response.raise_for_status()
+                return response
+
+            params = dict(kwargs.pop("params", {}) or {})
+            if self.passport_key is None:
+                self.refresh_key()
+            for attempt in range(2):
+                params["passportKey"] = self.passport_key
+                response = super().request(method, url, params=params, **kwargs)
+                if not response.ok:
+                    raise RuntimeError(f"네이버 검사 요청 실패: HTTP {response.status_code}")
+                try:
+                    data = response.json()
+                except ValueError as exc:
+                    raise RuntimeError("네이버가 JSON 검사 결과를 반환하지 않았습니다.") from exc
+                message = data.get("message") if isinstance(data, dict) else None
+                if not isinstance(message, dict):
+                    raise RuntimeError("네이버 응답에 message 항목이 없습니다.")
+                if isinstance(message.get("result"), dict):
+                    return response
+                error = str(message.get("error", "result 항목이 없는 응답"))
+                if attempt == 0 and ("키" in error or "key" in error.lower()):
+                    self.refresh_key()
+                    continue
+                raise RuntimeError(f"네이버 검사 서비스 오류: {error[:200]}")
 
     if not hasattr(spell_checker, "_agent"):
         raise RuntimeError("설치된 hanspell이 지원하는 py-hanspell 버전과 다릅니다.")
@@ -80,11 +131,13 @@ def write_report(path, lines):
 
 def main(argv=None, checker=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--version", action="version", version=CHECKER_VERSION)
     parser.add_argument("files", nargs="*")
     parser.add_argument("--files-from", type=Path, help="NUL로 구분한 파일 목록")
     parser.add_argument("--output", type=Path, default=Path("hanspell-result.txt"))
     args = parser.parse_args(argv)
-    report = ["한국어 맞춤법 검사", ""]
+    report = ["한국어 맞춤법 검사", f"검사기 버전: {CHECKER_VERSION}", ""]
+    print(f"검사기 버전: {CHECKER_VERSION}")
     context = "준비"
     report_safe = True
     try:
@@ -105,7 +158,7 @@ def main(argv=None, checker=None):
             report_safe = False
             raise ValueError("입력 파일과 결과 파일은 달라야 합니다.")
         # A killed process must never leave a success report from an earlier run.
-        write_report(args.output, ["검사가 완료되지 않았습니다."])
+        write_report(args.output, [f"검사기 버전: {CHECKER_VERSION}", "검사가 완료되지 않았습니다."])
         if not paths:
             report.append("검사 대상 Markdown 파일이 없습니다.")
             write_report(args.output, report)
