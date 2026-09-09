@@ -6,10 +6,11 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   spellcheck:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    name: Hanspell Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -19,38 +20,80 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          persist-credentials: false
+
+      - name: Node 설치
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Python 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: hanspell 설치
-        run: npm install --global hanspell --ignore-scripts
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install git+https://github.com/ssut/py-hanspell.git
 
       - name: 변경된 Markdown 검사
+        id: spellcheck
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          marker=$(cat /proc/sys/kernel/random/uuid)
-          echo "::stop-commands::$marker"
+          git diff --name-only \
+            "$BASE_SHA" "$HEAD_SHA" \
+            --diff-filter=AMR \
+            -- '*.md' '*.markdown' \
+            > files.txt
 
-          failed=0
-          count=0
+          if [ ! -s files.txt ]; then
+            echo "Markdown 변경 없음"
+            echo "failed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          # 변경 파일 조회가 실패하면 검사를 중단
-          git diff --name-only -z --diff-filter=AMR \
-            "$BASE_SHA...$HEAD_SHA" -- '*.md' '*.markdown' \
-            > "$RUNNER_TEMP/hanspell-files"
+          python scripts/hanspell_check.py $(cat files.txt)
 
-          while IFS= read -r -d '' file; do
-            count=$((count + 1))
-            printf '\n📝 검사 파일: %s\n' "$file"
 
-            if ! timeout 90s hanspell-cli < "$file"; then
-              printf '⚠️ 검사 실행 실패 또는 시간 초과\n'
-              failed=1
-            fi
-          done < "$RUNNER_TEMP/hanspell-files"
+      - name: PR 댓글 작성
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          RESULT_FILE: /tmp/hanspell-result.txt
+          STATUS: ${{ steps.spellcheck.outputs.failed }}
+        with:
+          script: |
+            const fs = require("fs");
 
-          printf '\n검사 대상: %s개 파일\n' "$count"
-          echo "::$marker::"
-          exit "$failed"
+            let result = "";
+
+            if (fs.existsSync(process.env.RESULT_FILE)) {
+              result = fs.readFileSync(process.env.RESULT_FILE, "utf8");
+            }
+
+            let body;
+
+            if (process.env.STATUS === "true") {
+              body =
+              `## ⚠️ 한국어 맞춤법 검사 실패\n\n` +
+              "수정이 필요한 맞춤법 오류가 발견되었습니다.\n\n" +
+              "```\n" +
+              result.slice(0, 6000) +
+              "\n```";
+            } else {
+              body =
+              `## ✅ 한국어 맞춤법 검사 통과\n\n` +
+              "변경된 Markdown 파일 검사가 완료되었습니다.\n\n" +
+              result.slice(0, 6000);
+            }
+
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });

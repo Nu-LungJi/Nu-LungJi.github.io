@@ -44,3 +44,4 @@ if all_errors:
     sys.exit(1)
 
 print("맞춤법 오류 없음")
+
