@@ -2,6 +2,9 @@ import sys
 from hanspell import spell_checker
 
 
+result_file = "/tmp/hanspell-result.txt"
+
+
 def check_file(path):
     with open(path, "r", encoding="utf-8") as f:
         text = f.read()
@@ -10,33 +13,33 @@ def check_file(path):
 
     errors = []
 
-    for word, info in result.words.items():
-        if info == False:
+    for word, ok in result.words.items():
+        if not ok:
             errors.append(word)
 
     return errors
 
 
-if __name__ == "__main__":
-    files = sys.argv[1:]
+all_errors = []
 
-    total_errors = []
+with open(result_file, "w", encoding="utf-8") as out:
 
-    for file in files:
+    for file in sys.argv[1:]:
         errors = check_file(file)
 
         if errors:
-            print(f"\n📝 {file}")
+            out.write(f"## 📝 {file}\n")
 
-            for error in errors:
-                print(f"- {error}")
+            for e in errors:
+                out.write(f"- {e}\n")
 
-            total_errors.extend(errors)
+            out.write("\n")
 
-    if total_errors:
-        print(
-            f"\n⚠️ 맞춤법 오류 {len(total_errors)}개 발견"
-        )
-        sys.exit(1)
+            all_errors.extend(errors)
 
-    print("✅ 맞춤법 오류 없음")
+
+if all_errors:
+    print("맞춤법 오류 발견")
+    sys.exit(1)
+
+print("맞춤법 오류 없음")
