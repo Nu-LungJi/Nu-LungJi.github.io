@@ -9,6 +9,9 @@ search: true
 remote_theme: mmistakes/minimal-mistakes@4.28.0
 minimal_mistakes_skin: "default" # "air"
 
+# Site Favicon Settings
+favicon: "/assets/images/Github-Blog-Icon.ico"
+
 # MarkDown
 markdown: kramdown
 permalink: /:categories/:title/
