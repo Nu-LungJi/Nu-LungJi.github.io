@@ -9,22 +9,149 @@
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
 />
 
+<!-- Pretendard -->
+<link
+  rel="stylesheet"
+  crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+/>
+
 <style>
-html,
-body,
-.page,
-.page__inner-wrap,
-.page__content,
+
+/* ==================================================
+   1. 블로그 타이틀
+   왼쪽 위 "LungJi Lab"
+   ================================================== */
+
+.site-title {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+
+/* ==================================================
+   2. 상단 메뉴
+   Home / Posts / Categories
+   ================================================== */
+
+.greedy-nav .visible-links a {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+
+/* ==================================================
+   3. 사이드 카테고리
+   PROGRAMMING / C++ / STL / ...
+   ================================================== */
+
+/* 대분류
+   PROGRAMMING
+   SHADER PROGRAMMING
+   UNREAL ENGINE 등
+*/
+.nav__list .nav__sub-title {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+
+/* 세부 카테고리
+   C++
+   Standard Template Library
+   Thread Programming 등
+*/
+.nav__list .nav__items a {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+
+/* ==================================================
+   4. 게시글 제목
+   예: UML - Unified Modeling Language
+   ================================================== */
+
+.page__title,
+.page__title a {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 32px !important;
+  font-weight: 700 !important;
+}
+
+
+/* ==================================================
+   5. 게시글 본문
+   ================================================== */
+
+.page__content {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 1.8 !important;
+}
+
+
+/* 본문 안의 문단 / 리스트도 확실하게 적용 */
 .page__content p,
 .page__content li,
 .page__content a,
-.archive,
-.archive__item,
-.archive__item-title,
-.sidebar,
-.masthead,
-.greedy-nav {
+.page__content table {
   font-family: "Pretendard", sans-serif !important;
-  font-size: 20px;
 }
+
+
+/* ==================================================
+   6. 게시글 본문 내부 제목
+   # / ## / ### 제목
+   ================================================== */
+
+.page__content h1,
+.page__content h2,
+.page__content h3,
+.page__content h4,
+.page__content h5,
+.page__content h6 {
+  font-family: "Pretendard", sans-serif !important;
+  font-weight: 700 !important;
+}
+
+
+/* ==================================================
+   7. 홈 화면 게시글 제목
+   Recent Posts 아래 게시글 제목
+   ================================================== */
+
+.archive__item-title,
+.archive__item-title a {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+
+
+/* ==================================================
+   8. 홈 화면 게시글 미리보기
+   ================================================== */
+
+.archive__item-excerpt,
+.archive__item-excerpt p {
+  font-family: "Pretendard", sans-serif !important;
+
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+}
+
 </style>
