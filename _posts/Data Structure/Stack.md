@@ -2,6 +2,17 @@
 
 주로 '프링글스'를 예를 들어 설명하는데, 프링글스는 밑을 억지로 뜯지 않는 이상, 맨 위에 있는 감자칩만 꺼내서 먹을 수 있습니다. 즉, Stack은 맨 위(Top)에 있는 데이터에만 접근이 가능하고, 그 외에는 Top에서 계속 꺼낸 후에 접근이 가능하다는 특징을 가지고 있습니다. 
 
+### STL Stack
+
+``` cpp
+#include <stack>
+
+int main() {
+	stack<Chip> Pringles;
+}
+```
+C++ STL에서는 include만 해주면 stack\<T\> 자료형으로 사용이 가능하다.
+
 ### Function
 cppreference에서 Stack의 메서드는 Member functions으로 다음과 같이 소개한다.
 
@@ -49,18 +60,10 @@ cppreference에서 Stack의 메서드는 Member functions으로 다음과 같이
 </table>
 <table style="width: 100%; border-collapse: collapse;">
 	<tr style="height: 50px; border-bottom: 1px solid #ddd; vertical-align: middle;"> 
-		<td style="width: 200px; padding: 0 0 0 15px; line-height: 1.2; vertical-align: middle;">swap( std::stack<T>)</td> 
+		<td style="width: 200px; padding: 0 0 0 15px; line-height: 1.2; vertical-align: middle;">swap(std::stack<T>)</td> 
 		<td style="padding: 0 0 0 20px; line-height: 1.2; vertical-align: middle;"> <font color="#595959">[수정자] </font>다른 Stack과 데이터 전체 교환</td>
 		<td style="width: 100px; line-height: 1.2; vertical-align: middle; text-align: center;"> X </td> 
 	</tr> 
 </table>
-### STL Stack
 
-``` cpp
-#include <stack>
-
-int main() {
-	stack<Chip> Pringles;
-}
-```
-C++ STL에서는 include만 해주면
+NonMember Functions(operator)으로는 '\==', '!=', '<', '<=', '>', '>=' 을 지원하고, 아까 위에서 swap을 봤었는데, std::swap(std::stack, std::stack)도 가능하다.
