@@ -136,7 +136,72 @@ int main() {
 
 ### 실제 구현
 
+---
+**동적 배열 기반 Stack**
+``` cpp
+#define MAX_STACK_SIZE 100  
 
+template <typename T>  
+class DynamicStack {  
+public:  
+    DynamicStack();  
+    DynamicStack(uint32_t size);  
+    
+public:  
+    void push(T element);  
+    void pop();  
+    
+    T top() const;  
+        
+    bool IsEmpty() const;  
+    size_t size() const;  
+    size_t capacity() const;  
+    
+private:  
+    std::vector<T> StackArray;
+};  
+  
+template <typename T>  
+DynamicStack<T>::DynamicStack()  {  
+    StackArray.reserve(MAX_STACK_SIZE);  
+}  
+  
+template <typename T>  
+DynamicStack<T>::DynamicStack(uint32_t size)  {  
+    StackArray.reserve(size);  
+}  
+  
+template <typename T>  
+void DynamicStack<T>::push(T element)  {  
+    StackArray.push_back(element);  
+}  
+  
+template <typename T>  
+void DynamicStack<T>::pop()  {  
+    if (!StackArray.empty())  
+        StackArray.pop_back();  
+}  
+  
+template <typename T>  
+bool DynamicStack<T>::IsEmpty() const  {  
+    return StackArray.empty();  
+}  
+  
+template <typename T>  
+T DynamicStack<T>::top() const  {  
+    return StackArray.empty() ? T{} : StackArray.back();  
+}  
+  
+template <typename T>  
+size_t DynamicStack<T>::size() const  {  
+    return StackArray.size();  
+}  
+  
+template <typename T>  
+size_t DynamicStack<T>::capacity() const {  
+    return StackArray.capacity();  
+}
+```
 
 
 Ref. https://en.cppreference.com/cpp/container/stack
