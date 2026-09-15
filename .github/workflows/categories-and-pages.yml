@@ -1,0 +1,94 @@
+name: Sync categories and deploy Pages
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # A manual run from a different branch must never publish to master.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: _scripts/requirements.txt
+
+      - name: Install category sync dependencies
+        run: python -m pip install -r _scripts/requirements.txt
+
+      - name: Test category creation and deletion
+        run: python -m unittest discover -s _scripts -p 'test_*.py' -v
+
+      - name: Validate and synchronize category pages
+        run: |
+          python _scripts/sync_categories.py --check
+          python _scripts/sync_categories.py
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Build blog with Jekyll
+        uses: actions/jekyll-build-pages@v1
+
+      - name: Verify category pages in the built site
+        run: python _scripts/verify_category_build.py
+
+      # GITHUB_TOKEN pushes do not trigger another Pages build. Deploy the
+      # already built site in this workflow after saving the generated files.
+      - name: Save generated category pages to master
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A -- _pages/generated-categories
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Sync category pages from navigation'
+          fi
+          # Persist no token in the checkout. Never force push: if master has
+          # moved, fail and let the run for that newer revision deploy instead.
+          gh auth setup-git
+          git push origin HEAD:master
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy blog
+        id: deployment
+        uses: actions/deploy-pages@v4

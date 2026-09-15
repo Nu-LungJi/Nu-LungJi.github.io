@@ -1,5 +1,8 @@
 # Blog Information
 title: LungJi Lab
+url: "https://nu-lungji.github.io"
+baseurl: ""
+repository: "Nu-LungJi/Nu-LungJi.github.io"
 email: shinhwa30724@gmail.com
 description: "똥글 싸지릅니다."
 github_username: LungJi

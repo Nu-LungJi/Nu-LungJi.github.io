@@ -17,35 +17,45 @@ sidebar-category:
     children:
       - title: "C++"
         url: "/categories/CPP/"
+        category: "C++"
 
       - title: "Standard Template Library"
         url: "/categories/STL/"
+        category: "Standard Template Library"
 
       - title: "Thread Programming"
         url: "/categories/Thread-Programming/"
+        category: "Thread Programming"
 
       - title: "Optimization"
-        url: "/categories/Pptimization/"
+        url: "/categories/Optimization/"
+        category: "Optimization"
 
   - title: "SHADER PROGRAMMING"
     children:
       - title: "Volumetric Shader"
         url: "/categories/Volumetric-Shader/"
+        category: "Volumetric Shader"
 
   - title: "UNREAL ENGINE"
     children:
       - title: "Unreal C++"
         url: "/categories/Unreal-CPP/"
+        category: "Unreal C++"
 
   - title: "SOFTWARE ARCHITECTURE"
     children:
       - title: "Design Principles"
         url: "/categories/Design-Principles/"
+        category: "Design Principle"
         
       - title: "Design Pattern"
         url: "/categories/Design-Pattern/"
+        category: "Design Pattern"
 
       - title: "Software Modeling"
         url: "/categories/Software-Modeling/"
+        category: "Software Modeling"
+        author_profile: true
 
   - title: "GRAPHICS"

@@ -2,8 +2,8 @@
 """Generate Minimal Mistakes category pages from _data/navigation.yml.
 
 Requires Python 3.10+ and PyYAML. Run from any directory:
-    python scripts/sync_categories.py --check
-    python scripts/sync_categories.py
+    python _scripts/sync_categories.py --check
+    python _scripts/sync_categories.py
 """
 import argparse
 import hashlib
@@ -87,8 +87,10 @@ def plan(root):
             categories.add(category)
             name = hashlib.sha256(url.encode()).hexdigest()[:20] + ".md"
             front = {"title": title, "layout": "category", "permalink": url,
-                     "taxonomy": category, "author_profile": False,
+                     "taxonomy": category, "author_profile": item.get("author_profile", False),
                      "sidebar": {"nav": "sidebar-category"}}
+            if not isinstance(front["author_profile"], bool):
+                raise ValueError(f"{loc}: author_profile must be true or false")
             pages[name] = "---\n" + MARKER + "\n" + yaml.safe_dump(
                 front, allow_unicode=True, sort_keys=False
             ) + "---\n"
@@ -128,7 +130,7 @@ def plan(root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parent.parent,
-                        help="Repository root (default: parent of scripts directory)")
+                        help="Repository root (default: parent of _scripts directory)")
     parser.add_argument("--check", action="store_true", help="Validate only; do not change files")
     args = parser.parse_args()
     try:
