@@ -1,5 +1,10 @@
 # Minimal Mistakes remote theme starter
 
+## 블로그 카테고리 자동 관리
+
+`_data/navigation.yml`을 수정해 `master`에 반영하면 카테고리 페이지를 자동으로
+생성·삭제하고 블로그를 배포합니다. [사용 방법](_scripts/CATEGORIES.md)을 참고하세요.
+
 Click [**Use this template**](https://github.com/mmistakes/mm-github-pages-starter/generate) button above for the quickest method of getting started with the [Minimal Mistakes Jekyll theme](https://github.com/mmistakes/minimal-mistakes).
 
 Contains basic configuration to get you a site with:
