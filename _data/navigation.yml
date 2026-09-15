@@ -37,6 +37,9 @@ sidebar-category:
         url: "/categories/Volumetric-Shader/"
         category: "Volumetric Shader"
 
+      - title: "W Shader"
+        url: "/categories/W-Shader/"
+        category: "W Shader"
   - title: "UNREAL ENGINE"
     children:
       - title: "Unreal C++"
