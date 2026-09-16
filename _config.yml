@@ -50,6 +50,16 @@ footer:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/Nu-LungJi"
 
+comments:
+  provider: "giscus"
+  giscus:
+    repo_id: "R_kgDOUR9ySw"
+    category_name: "User FeedBack"
+    category_id: "DIC_kwDOUR9yS84DFwYw"
+    discussion_term: "pathname"
+    reactions_enabled: "1"
+    theme: "preferred_color_scheme"
+
 # Post defaults
 defaults:
   - scope:
@@ -59,7 +69,7 @@ defaults:
       layout: single
       author_profile: false
       read_time: true
-      comments: false
+      comments: true
       share: true
       related: true
       toc: true
