@@ -55,10 +55,14 @@ sidebar-category:
       - title: "Design Pattern"
         url: "/categories/Design-Pattern/"
         category: "Design Pattern"
-
+        
+      - title: "Software Programming"
+        url: "/categories/Software-Programming/"
+        category: "Software Programming"
+        
       - title: "Software Modeling"
         url: "/categories/Software-Modeling/"
         category: "Software Modeling"
         author_profile: true
-
+        
   - title: "GRAPHICS"
