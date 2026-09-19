@@ -1,14 +1,14 @@
 <style>
 @media (min-width: 1024px) {
-  .sidebar {
-    max-height: none !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
   .sidebar.sticky {
     position: static !important;
     top: auto !important;
+
+    max-height: none !important;
+    height: auto !important;
+
+    overflow: visible !important;
+    overflow-y: visible !important;
   }
 }
 </style>
