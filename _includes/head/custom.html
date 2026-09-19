@@ -153,5 +153,23 @@
   font-weight: 400 !important;
   line-height: 1.7 !important;
 }
+/* ==================================================
+   9. 왼쪽 카테고리 사이드바
+   - 화면에 고정하지 않음
+   - 별도 스크롤 제거
+   - 본문과 함께 일반 페이지 스크롤 사용
+   ================================================== */
 
+@media screen and (min-width: 1024px) {
+  .sidebar.sticky {
+    position: static !important;
+    top: auto !important;
+
+    max-height: none !important;
+    height: auto !important;
+
+    overflow: visible !important;
+    overflow-y: visible !important;
+  }
+}
 </style>
