@@ -11,4 +11,16 @@
     overflow-y: visible !important;
   }
 }
+
+.author__content {
+  text-align: center;
+}
+
+.author__avatar {
+  text-align: center;
+}
+
+.author__avatar img {
+  margin: 0 auto;
+}
 </style>
