@@ -172,56 +172,68 @@
     overflow-y: visible !important;
   }
 }
-  /* ==================================================
+/* ==================================================
    9. Author Profile
    ================================================== */
 
-/* 프로필 사진: 원본 그대로 */
+/* 프로필 사진: 왼쪽 정렬 + 기존보다 약 1.7배 크게 */
 .author__avatar {
-  text-align: center;
+  text-align: left !important;
 }
 
 .author__avatar img {
   display: block !important;
-  width: 110px !important;
+
+  width: 187px !important;   /* 기존 110px × 1.7 */
   height: auto !important;
   max-width: 100% !important;
 
-  margin: 0 auto !important;
+  margin: 0 !important;
   padding: 0 !important;
 
-  border: 0 !important;
+  border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 
   object-fit: contain !important;
 }
 
-/* 닉네임 가운데 정렬 */
+/* 닉네임 + GitHub 아이콘 한 줄 배치 */
 .author__content {
-  text-align: center !important;
+  text-align: left !important;
 }
 
 .author__name {
-  text-align: center !important;
+  display: inline-block !important;
+  margin-right: 6px !important;
+  text-align: left !important;
 }
 
-/* SNS 영역 가운데 정렬 */
-.author__urls {
-  text-align: center !important;
-}
-
-/* GitHub 글자는 숨기고 아이콘만 */
-.author__urls li {
+/* GitHub 링크 영역을 닉네임 옆으로 */
+.author__urls-wrapper {
   display: inline-block !important;
 }
 
+.author__urls {
+  display: inline-block !important;
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+.author__urls li {
+  display: inline-block !important;
+  margin: 0 !important;
+}
+
+/* GitHub 글자는 숨기고 아이콘만 */
 .author__urls span.label {
   display: none !important;
 }
 
 .author__urls a {
   display: inline-block !important;
-  padding: 2px 5px !important;
+  padding: 0 !important;
 }
 </style>
