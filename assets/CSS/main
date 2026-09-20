@@ -23,4 +23,8 @@
 .author__avatar img {
   margin: 0 auto;
 }
+
+.author__urls span.label {
+  display: none;
+}
 </style>
