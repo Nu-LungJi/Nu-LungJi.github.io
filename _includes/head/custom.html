@@ -257,4 +257,156 @@
 .author__urls i {
   font-size: 1.3em !important;
 }
+  /* ==================================================
+   10. Pagination
+   ================================================== */
+
+.custom-pagination {
+  width: 100% !important;
+
+  margin: 3rem 0 1rem !important;
+  padding: 0 !important;
+
+  float: none !important;
+}
+
+.custom-pagination ul {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 12px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  list-style: none !important;
+}
+
+
+/* Minimal Mistakes 기본 float 제거 */
+.custom-pagination li {
+  display: flex !important;
+  float: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+/* 숫자 / 화살표 공통 */
+.custom-pagination a,
+.custom-pagination .pagination__item,
+.custom-pagination .pagination__arrow span {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 46px !important;
+  height: 46px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  font-family: "Pretendard", sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+
+  line-height: 1 !important;
+
+  color: #181a1d !important;
+  background: transparent !important;
+
+  border: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+
+  text-decoration: none !important;
+}
+
+
+/* 현재 페이지 */
+.custom-pagination .pagination__item.current {
+  color: #ffffff !important;
+  background: #303640 !important;
+
+  font-weight: 700 !important;
+
+  cursor: default;
+}
+
+
+/* 일반 숫자 hover */
+.custom-pagination a.pagination__item:hover {
+  background: #f1f2f4 !important;
+
+  color: #181a1d !important;
+}
+
+
+/* 좌우 화살표 */
+.custom-pagination .pagination__arrow a,
+.custom-pagination .pagination__arrow span {
+  font-size: 20px !important;
+}
+
+.custom-pagination .pagination__arrow a:hover {
+  background: #f1f2f4 !important;
+}
+
+
+/* 첫/마지막 페이지에서는 비활성 화살표 */
+.custom-pagination .pagination__arrow .disabled {
+  opacity: 0.25;
+
+  cursor: default;
+}
+
+
+/* ... */
+.custom-pagination .pagination__ellipsis {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 46px;
+
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  color: #181a1d;
+}
+
+
+/* 모바일 */
+@media screen and (max-width: 600px) {
+
+  .custom-pagination ul {
+    gap: 4px !important;
+  }
+
+  .custom-pagination a,
+  .custom-pagination .pagination__item,
+  .custom-pagination .pagination__arrow span {
+    width: 38px !important;
+    height: 38px !important;
+
+    font-size: 15px !important;
+
+    border-radius: 10px !important;
+  }
+
+  .custom-pagination .pagination__ellipsis {
+    width: 26px;
+    height: 38px;
+
+    font-size: 13px;
+  }
+}
 </style>
