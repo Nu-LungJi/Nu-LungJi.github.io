@@ -20,11 +20,14 @@
   text-align: center;
 }
 
-.author__avatar img {
-  margin: 0 auto;
-}
-
 .author__urls span.label {
   display: none;
+}
+
+.author__avatar img {
+  margin: 0 auto;
+  border-radius: 0;
+  border: none;
+  padding: 0;
 }
 </style>
