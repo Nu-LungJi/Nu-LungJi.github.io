@@ -96,49 +96,62 @@ public:
 
 ### 가상 소멸자
 
-> [!note]- ※ **문제 상황**
->```cpp 
-> class CBase { 
-> public: 
->	CBase() { cout << "부모 생성자 호출" << endl; }
->	~CBase(){ cout << "부모 소멸자 호출" << endl; }
- >}; 
- >class CDerived : public CBase { 
-> public: 
->	CDerived() { cout << "자식 생성자 호출" << endl; } 
->	~CDerived() { cout << "자식 소멸자 호출" << endl; } 
-> }; 
-> int main() { 
->	CBase* pDerived = new CDerived; 
->	delete pDerived;
-  >} 
+<details markdown="1">
+<summary><strong>※ 문제 상황</strong></summary>
+
+```cpp
+class CBase { 
+public: 
+    CBase() { cout << "부모 생성자 호출" << endl; }
+    ~CBase(){ cout << "부모 소멸자 호출" << endl; }
+}; 
+
+class CDerived : public CBase { 
+public: 
+    CDerived() { cout << "자식 생성자 호출" << endl; } 
+    ~CDerived() { cout << "자식 소멸자 호출" << endl; } 
+}; 
+
+int main() { 
+    CBase* pDerived = new CDerived; 
+    delete pDerived;
+}
+
 >//************** 결과 *****************//
 >부모 생성자 호출
 >자식 생성자 호출
 >부모 소멸자 호출
 >// 자식 소멸자가 불리지 않음( 하지만, 표준에서 보장된 행동이 아니다 )
 
-> [!note]- ※ **해결**
->```cpp 
-> class CBase { 
-> public: 
->	CBase() { cout << "부모 생성자 호출" << endl; }
->	virtual ~CBase(){ cout << "부모 소멸자 호출" << endl; }
- >}; 
- >class CDerived : public CBase { 
-> public: 
->	CDerived() { cout << "자식 생성자 호출" << endl; } 
->	~CDerived() { cout << "자식 소멸자 호출" << endl; } 
-> }; 
-> int main() { 
->	CBase* pDerived = new CDerived; 
->	delete pDerived;
-  >} 
+</details>```
+
+
+<details markdown="1">
+<summary><strong>※ 해결</strong></summary>
+
+```cpp
+class CBase { 
+public: 
+    CBase() { cout << "부모 생성자 호출" << endl; }
+    virtual ~CBase(){ cout << "부모 소멸자 호출" << endl; }
+}; 
+
+class CDerived : public CBase { 
+public: 
+    CDerived() { cout << "자식 생성자 호출" << endl; } 
+    ~CDerived() { cout << "자식 소멸자 호출" << endl; } 
+}; 
+
+int main() { 
+    CBase* pDerived = new CDerived; 
+    delete pDerived;
+}
 >//************** 결과 *****************//
 >부모 생성자 호출
 >자식 생성자 호출
 >자식 소멸자 호출
 >부모 소멸자 호출
+</details>```
 
 상위 클래스의 포인터 자료형 변수의 실 객체는 하위 클래스이다. 그렇기에 객체 delete를 하게 되면, 컴파일러는 자동으로 소멸자를 결정하는데, 2가지 경우로 나눠진다는 것이다.
 	 - **~BaseClass() :** 자료형을 기준으로 소멸자를 결정한다. 즉, 상위 클래스의 소멸자를 호출시키는 것이다. 비가상 소멸자로 하위 객체를 삭제시키는 작업은 C++ 표준에서 보장된 행동이 아니기에, 가상 소멸자로 전환시켜야 안전성이 보장된다.
