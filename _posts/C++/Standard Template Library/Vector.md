@@ -1,0 +1,297 @@
+---
+title: C++ STL [vector]
+excerpt:
+date: 2026-09-22 17:10:00 +0900
+last_modified_at: 2026-09-22
+categories:
+  - STL
+tags:
+  - "#STL"
+  - "#Vector"
+toc: true
+toc_sticky: true
+published: true
+---
+
+→ **정의 :** 같은 타입의 원소를 연속된 메모리에 저장하는 STL컨테이너
+
+→ **특성 :** 흔히 C언어에서 사용하는 배열과 유사하다. 하지만, 배열의 고정적인 크기에 제한되지 않고, 원소를 계속 저장할 수 있고 계속 삭제해서 할당받는 공간을 줄일 수 있는 '**동적**'배열이다.
+
+→ **동작 :** vector는 3개의 포인터로 이뤄져 있는데, 할당된 메모리 블럭의 시작 주소인 [시작 원소 포인터(A)], 마지막 원소가 저장된 메모리 블럭인[마지막 원소 포인터(B)], 할당된 메모리 블럭의 마지막 주소인[할당 메모리 포인터(C)]로 나눌 수 있다. 이 3개의 포인터들과 연산을 통해서 vector의 메서드를 정의한다. 
+
+→ **할당 메모리 포인터 :** 사실 B포인터와 C포인터가 동일해도 된다. vector가 A포인터, B포인터만 있고, 추가할 때 마다 B포인터를 한 칸 뒤로 밀면, 원소 삽입이고, 한 칸 앞으로 밀면, 원소 삭제가 된다. 그럼에도 C포인터가 있어야 하는 이유는 "**재할당**"이 이뤄지기 때문이다. 재할당은 원소 갯수에 따라 복사 비용이 많이들기 때문에, 원소 추가/삭제 한 번당 한 번의 재할당은 효율이 많이 떨어진다. 그렇기에 한 번에 크게 재할당을 하여, 재할당 횟수를 줄이는 것이 좋다. 그렇기에 할당 메모리 포인터가 필요한 것이다. 
+
+→ **재할당 :** `vector`는 힙 공간에서 동적 할당으로 메모리를 할당 받고, 해제시킨다. 추가적인 메모리를 런타임에 계속 할당 받을 수 있기 때문에, 힙 공간에서 이미 사용 중인 메모리를 침범할 위험이 있다. 그러한 상황을 만들지 않기 위해, OS에 안전한 연속 공간을 요청하여 메모리를 할당 받고, 원소를 이동시킨 후, 기존의 영역을 해제시키는 과정을 '**재할당**'이라고 한다.
+
+→ **추가 / 삽입 / 삭제 :** `vector`는 연속적인 메모리로 이뤄져 있어, 제일 마지막 원소 뒤에 추가, 삽입, 마지막 원소 삭제가 O(1) 시간복잡도로 매우 빠르다. (단, 재할당이 이뤄지는 경우, 복사 비용으로 인하여, O(N)시간 복잡도가 되기 때문에 <u>"항상" O(1) 시간복잡도인 것은 아니다</u>.) 하지만, 원소를 중간에 삽입/삭제 할 경우, 뒤에 있는 원소들을 이동시켜야 한다. 이 경우에는 O(N)시간 복잡도로, 느린편에 속한다.
+
+**※ vector의 주요 생성자**
+``` cpp
+#include <vector>
+
+int main() {
+	vector<Type> IntegerVecA; // 빈 벡터
+	vector<Type> IntegerVecB(size_type Count); // Count만큼 원소 생성()
+	vector<Type> IntegerVecB(size_type Count, const Type& Value); // Count만큼 원소 생성, 모든 원소 Value로 초기화
+	vector(const vector& other); // 벡터 복사
+	vector(InputIt first, InputIt last) // iterator : first부터, last까지 복사
+	
+	return 0;
+} 
+```
+
+---
+### Method
+
+**※ 원소 접근자**
+- **ref at( <font color="#ffc000">size_type</font> pos )** - 특정 원소 접근/수정, pos의 범위 검사가 포함되어범위 외 접근 시도할 경우, `out_of_range` 예외를 던진다. 범위 검사로 인해 부하가 조금 있다.
+- **ref operator\[] ( <font color="#ffc000">size_type</font> pos )** - 특정 원소 접근/수정.
+- **ref front(), back()** - 제일 처음/끝 원소 접근/수정
+- **T* data()** - vector의 메모리 블럭 반환. 즉, 첫 번째 요소의 포인터 반환.
+
+※ **반복자**
+- **iterator begin() / cbegin()** - vector의 시작 iterator 반환 (begin - iterator / cbegin - const_iterator)
+- **iterator end() / cend()** - vector의 끝 iterator 반환 (end - iterator / cend - const_iterator)
+- **iterator rbegin / rend / rcbegin / rcend** - r이 붙으면 역전된(reverse) iterator 반환. (시작 = vector의 끝 원소, 끝 = vector의 시작 원소)
+
+※ **용량 확인**
+- **bool empty()** - 원소가 비어있는지 확인. ( 원소가 없다면 true )
+- **size_type size()** - 현재 원소의 갯수 확인.
+- **size_type max_size()** - 현재 자료형으로 vector가 이론적으로 가질 수 있는 원소의 수. ( ex. int - `4,611,686,018,427,387,903`개 )
+- **reserve(size_type new)** - 할당 메모리 예약. 위에서 설명한 재할당을 미리 원하는 크기만큼 함. (메모리의 갯수를 미리 알고 있다면 사용하는게 이득.)
+- **size_type capacity()** - 할당 메모리의 용량. ( = 현재 재할당된 용량)
+- shrink_to_fit() - 마지막 원소 갯수만큼 할당 메모리의 용량을 축소를 "요청" (표준에서 보장하지 않음). (메모리가 추가될 일이 없는 경우 사용.)
+
+※ **수정자**
+- **clear()** - 원소 모두 제거. 원소를 delete하는 것이 아닌, size를 0으로 만들기에, 메모리 해제는 별개로 해줘야 한다.
+- **iterator insert(iterator pos, const T& value)** - pos 자리에, value값 원소 삽입.
+- **iterator emplace(iterator pos, , const T& value) / ref emplace_back(const T& value)** - 제자리에서 원소를 생성 후, 삽입.
+- **iterator erase(iterator pos)** - 특정 위치의 원소 제거. 원소 delete는 개별적.
+- **push_back( const T& value )** - 마지막 원소의 뒤에 원소 삽입.
+- **pop_back()** - 마지막에 있는 원소 삭제. 원소 delete는 개별적.
+- **resize( size_type count )** - 현재 원소의 갯수를 count개로 축소/확대 시킴.
+- **swap(vector\<T> v)** - 벡터를 교체, 포인터만 swap하여 빠르고 안전.
+
+### 다양한 접근 방법
+
+<table class="cpp-access-table">
+  <thead>
+    <tr>
+      <th>접근 방식</th>
+      <th>경계 검사</th>
+      <th>속도</th>
+      <th>주요 용도</th>
+      <th>예시</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td><code>vec[i]</code></td>
+      <td>X</td>
+      <td><strong>최상</strong></td>
+      <td>일반적인 원소 접근, 성능 중시</td>
+      <td><code>int value = vec[2];</code></td>
+    </tr>
+
+    <tr>
+      <td><code>vec.at(i)</code></td>
+      <td>O</td>
+      <td>보통</td>
+      <td>경계 검사가 필요한 안전한 접근</td>
+      <td><code>int value = vec.at(2);</code></td>
+    </tr>
+
+    <tr>
+      <td><code>vec.data()</code></td>
+      <td>X</td>
+      <td><strong>최상</strong></td>
+      <td>C-Style API / 그래픽스 라이브러리 연동</td>
+      <td><code>int* ptr = vec.data();</code></td>
+    </tr>
+
+    <tr>
+      <td><code>vec.front()</code></td>
+      <td>X</td>
+      <td><strong>최상</strong></td>
+      <td>첫 번째 원소 접근</td>
+      <td><code>int first = vec.front();</code></td>
+    </tr>
+
+    <tr>
+      <td><code>vec.back()</code></td>
+      <td>X</td>
+      <td><strong>최상</strong></td>
+      <td>마지막 원소 접근</td>
+      <td><code>int last = vec.back();</code></td>
+    </tr>
+
+    <tr>
+      <td><code>Iterator</code></td>
+      <td>X</td>
+      <td><strong>최상</strong></td>
+      <td>STL 알고리즘 연동 및 순회</td>
+      <td><code>int value = *vec.begin();</code></td>
+    </tr>
+  </tbody>
+</table>
+### size() & capacity() & reserve()
+
+위에서 언급했듯이 size()는 ''원소를 얼마나 넣었는가"에 대한 답이고, capacity()는 "원소를 얼마나 더 넣을 수 있는가"를 나타낸다. capacity는 원소의 갯수(=size())와 같아지고 추가로 원소가 하나 더 들어오면, 더 넓은 크기의 메모리 블럭을 재할당한다. 그렇기에, 원소를 100번 정도 넣어도, 실제 재할당은 4-5번 밖에 일어나지 않는다.
+
+하지만, 재할당이 일어나면 속도도 느려지고, 메모리도 많이 잡아먹기에 비효율적이다. 그렇기에, 이를 어느 정도 방지하는 것이 좋은데, 그것이 `reserve(n)` 함수이다. `reserve(n)` 함수를 쓰게 되면, 한 번에 큰 메모리 블럭을 원하는만큼 할당 받을 수 있는데, 데이터의 수를 대강 알고 있다면, `reserve(n)`로 먼저 할당 시켜 놓는 것이 좋은 방법이다.
+### swap() & clear()
+
+Clear함수에는 문제가 있는데, 원소를 모두 제거하여 size를 0으로 만들지만, 기존에 확장되었던 capacity를 줄이지는 않는다. 다른 원소 제거 함수(erase, pop_back도 동일)도 그렇기에, 메모리 영역은 vector가 그대로 차지하고 있는 것이다. 이 문제를 해결하기 위해서는 shrink_to_fit함수를 쓸 수 있는데, 이것은 표준에서 결과를 보장하지 않기 때문에, 대체안으로 "스왑 기법(Swap Idiom)"을 사용한다.
+
+``` cpp
+std::vector<int> vec = { 1, 2, 3, 4, 5 };
+vec.reserve(9999);
+
+std::vector<int> temp;
+vec.swap(temp);
+
+vec.clear();
+std::vector<int>().swap(vec);
+```
+
+---
+### vector\<bool>의 특수화
+
+C++ 표준에선 vector\<bool>을 특수화시켜 두었다. cppreference에서도 vector와 vector\<bool>의 Document를 구분하고 있고, '공간 효율을 위한 특수화'로 설명하고 있다. bool이 1byte대신, 1bit로 저장되도록 bit-packing을 하면서 메모리의 효율을 향상 시켰다고 볼 수 있다.
+
+하지만 이 특수화가 대부분의 컨테이너 규약을 깨트리고 있어, 사용이 매우 불편하고, 예상하기 힘든 오류를 발생시키기도 한다. 제일 큰 문제가 operator\[] 접근에서, T& 반환을 기대하는데, 프록시(대리자) 객체를 반환하는 것이 큰 불편함으로 이어져, 많은 불편을 준다.
+
+그렇기에, 다른 방식을 쓰는 것이 적절하다.
+- **vector\<uint8_t> :** 1byte를 쓰면서 0또는 1의 true/false 표현이 가능하다. 기본적으로 사용되는 vector와 동일하게 동작한다.
+- **std::bitset\<N> :** bit단위로 Flag를 줄 수 있고 비트 연산이 가능한 고정 크기의 비트 집합 컨테이너, 메모리 효율과 속도에서 큰 장점을 보인다.
+- **boost::dynamic_bitset :** bitset처럼 비트 단위로 Flag를 주면서 비트 연산도 지원하면서, vector처럼 동적으로 비트 수를 조절할 수 있다. 
+
+---
+### Advanced Vector
+
+중간 삽입과 삭제가 힘든 `vector`에서 조금 더 진화 된 방식의 벡터들이 나왔는데, 각각 필요에 따라 다르게 사용이 가능하다.
+
+> [!note]- 빠른 삭제 벡터
+※ **A :** 삭제는 하되, 삭제된 자리는 플래그를 두고, 원소 이동을 하지 않음. (순서 중요 + 빠른 삭제)  , 하지만 삭제된 자리가 계속 메모리를 차지하고 있어, 중간에 정리하는 것이 좋다.
+>``` cpp
+>struct Entity {
+>	Data data;
+>	bool Is_Valid = false;
+>};
+>
+>int main() {
+>	...
+>	vec[Index].Is_Valid = false;
+>	...
+>	
+>	for (const auto& Element : vec){
+>		if (Element.Is_Valid == false) continue;
+>		...
+>	}
+>	
+>	return 0;
+>}
+>
+>```
+
+> [!note]- **간접 핸들 벡터**
+> ※ **간접 핸들(Handle)** 을 사용한 방식이다. 삽입 / 삭제 / 접근 전부 O(1) 시간 복잡도다.
+>``` cpp
+>// 1. 외부용 핸들
+>struct Handle {
+>    uint32_t index{ 0 };
+>    uint32_t generation{ 0 };
+>
+>   bool operator==(const Handle& other) const {
+>       return index == other.index && generation == other.generation;
+>   }
+>};
+>
+>template <typename T>
+>class SlotMap {
+>private:
+>    struct Slot {
+>        uint32_t data_index{ 0 };
+>        uint32_t generation{ 0 };
+>    };
+>    
+>  std::vector<T> dense_;            // 실제 데이터 (연속 메모리)
+  >  std::vector<uint32_t> erase_;     // Dense -> Slots 역방향 인덱스
+  >  std::vector<Slot> slots_;         // Indirection 테이블
+  >  
+  >  uint32_t free_head_{ 0xFFFFFFFF }; // Free List의 시작점 (End marker)
+ >   uint32_t free_count_{ 0 };
+>
+public:
+ >   Handle insert(const T& value) {
+ >       uint32_t slot_index;
+>
+ >       // 1. 재활용할 슬롯이 있는가?
+  >      if (free_count_ > 0) {
+  >          slot_index = free_head_;
+  >          free_head_ = slots_[slot_index].data_index; // 다음 free 슬롯으로 이동
+  >          --free_count_;
+   >     } else {
+   >         // 없으면 새로 확장
+   >         slot_index = static_cast<uint32_t>(slots_.size());
+   >         slots_.push_back(Slot{});
+>     }
+>
+> 	    uint32_t data_index = static_cast<uint32_t>(dense_.size());
+>
+>        // 2. Slots & Dense 업데이트
+>        slots_[slot_index].data_index = data_index;
+>        // Generation은 기존 세대 유지 (처음 생성이면 0)
+>
+>        dense_.push_back(value);
+>        erase_.push_back(slot_index);
+>
+>       return Handle{ slot_index, slots_[slot_index].generation };
+>    }
+>
+>    T* get(Handle handle) {
+ >       if (handle.index >= **slots_.size()) return nullptr;
+>.**
+>        const Slot& slot = slots_[handle.index];
+>        // 세대 번호 검증으로 dangling handle 감지
+>        if (slot.generation != handle.generation) {
+ >           return nullptr; // 삭제된 데이터
+>        }
+>
+>        return &dense_[slot.data_index];
+>    }
+>    bool erase(Handle handle) {
+>        if (handle.index >= slots_.size()) return false;
+>        Slot& slot = slots_[handle.index];
+>        if (slot.generation != handle.generation) return false; // 이미 지워짐
+>        uint32_t delete_data_idx = slot.data_index;
+>        uint32_t last_data_idx = static_cast<uint32_t>(dense_.size() - 1);
+>      
+>        // 1. Dense 배열의 Swap-and-Pop
+>        if (delete_data_idx != last_data_idx) {
+>            dense_[delete_data_idx] = std::move(dense_[last_data_idx]);
+>            
+>            // 맨 뒤 원소가 옮겨왔으므로 해당 원소의 Slot 정보도 갱신
+>            uint32_t moved_slot_idx = erase_[last_data_idx];
+>            slots_[moved_slot_idx].data_index = delete_data_idx;
+>            erase_[delete_data_idx] = moved_slot_idx;
+>        }
+>
+>        dense_.pop_back();
+>        erase_.pop_back();
+>
+>        // 2. Slot 세대 증가 (기존 핸들 무효화) 및 Free List에 추가
+>        slot.generation++;
+>        slot.data_index = free_head_;
+>        free_head_ = handle.index;
+>        ++free_count_;
+>
+>        return true;
+>    }
+>
+>    // 데이터 순회용 (연속된 메모리이므로 캐시 친화적)
+>    const std::vector<T>& data() const { return dense_; }
+>};
+>```
+
