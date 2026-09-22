@@ -1,6 +1,7 @@
 {
   "enabledCssSnippets": [
-    "image-grid"
+    "image-grid",
+    "Custom-Table"
   ],
   "theme": "obsidian"
 }
