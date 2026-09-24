@@ -3,7 +3,7 @@
 title: Standard Template Library
 layout: category
 permalink: /categories/STL/
-taxonomy: Standard Template Library
+taxonomy: STL
 author_profile: false
 sidebar:
   nav: sidebar-category
