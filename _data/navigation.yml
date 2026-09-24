@@ -21,7 +21,7 @@ sidebar-category:
 
       - title: "Standard Template Library"
         url: "/categories/STL/"
-        category: "Standard Template Library"
+        category: "STL"
 
       - title: "Thread Programming"
         url: "/categories/Thread-Programming/"
